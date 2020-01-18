@@ -26,4 +26,10 @@ public class SessaoDao {
 				.setParameter("sala", sala)
 				.getResultList();
 	}
+
+	public void deletarPorId(Integer idSessao) {
+		manager.createQuery("delete Sessao s where s.id = :id")
+				.setParameter("id", idSessao)
+				.executeUpdate();
+	}
 }
