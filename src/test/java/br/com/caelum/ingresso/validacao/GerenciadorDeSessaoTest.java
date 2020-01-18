@@ -3,6 +3,7 @@ package br.com.caelum.ingresso.validacao;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -37,6 +38,38 @@ public class GerenciadorDeSessaoTest {
 		List<Sessao> sessoes = Arrays.asList(sessaoDasDez);
 		GerenciadorDeSessao gerenciador = new GerenciadorDeSessao(sessoes);
 		Assert.assertFalse(gerenciador.cabe(sessaoDasDez));
+	}
+	
+	@Test
+	public void garanteQueNaoDevePermitirSessoesTerminandoDentroDoHorarioDeUmaSessaoJaExistente() {
+		List<Sessao> sessoesSala = Arrays.asList(sessaoDasDez);
+		GerenciadorDeSessao gerenciador = new GerenciadorDeSessao(sessoesSala);
+		Sessao sessao = new Sessao(sessaoDasDez.getHorario().minusHours(1), rogueOne, sala3d);
+		Assert.assertFalse(gerenciador.cabe(sessao));
+	}
+	
+	@Test
+	public void garanteQueNaoDevePermitirSessoesIniciandoDentroDoHorarioDeUmaSessaoJaExistente() {
+		List<Sessao> sessoesSala = Arrays.asList(sessaoDasDez);
+		GerenciadorDeSessao gerenciador = new GerenciadorDeSessao(sessoesSala);
+		Sessao sessao = new Sessao(sessaoDasDez.getHorario().plusHours(1), rogueOne, sala3d);
+		Assert.assertFalse(gerenciador.cabe(sessao));
+	}
+	
+	@Test
+	public void garanteQueDevePermitirUmaInsercaoEntreDoisFilmes() {
+		List<Sessao> sessoesSala = Arrays.asList(sessaoDasDez,sessaoDasDezoito);
+		GerenciadorDeSessao gerenciador = new GerenciadorDeSessao(sessoesSala);
+		Assert.assertTrue(gerenciador.cabe(sessaoDasTreze));
+	}
+	
+	@Test
+	public void garanteQueDeveNaoPermitirUmaSessaoQueTerminaNoProximoDia() {
+		List<Sessao> sessoes = Collections.emptyList();
+		GerenciadorDeSessao gerenciador = new GerenciadorDeSessao(sessoes);
+		Sessao sessaoQueTerminaAmanha = new Sessao(LocalTime.parse("23:00:00"), rogueOne, sala3d);
+		
+		Assert.assertFalse(gerenciador.cabe(sessaoQueTerminaAmanha));
 	}
 
 }

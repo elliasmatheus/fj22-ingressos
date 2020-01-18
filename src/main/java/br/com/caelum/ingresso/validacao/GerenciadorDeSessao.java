@@ -35,7 +35,7 @@ public class GerenciadorDeSessao {
 		LocalDateTime inicioSessaoExistente = getInicioSessaoComDiaDeHoje(sessaoExistente);
 		LocalDateTime terminoSessaoExistente = getTerminoSessaoComDiaDeHoje(sessaoExistente);
 		LocalDateTime inicioSessaoNova = getInicioSessaoComDiaDeHoje(sessaoNova);
-		LocalDateTime terminoSessaoNova = getTerminoSessaoComDiaDeHoje(sessaoExistente);
+		LocalDateTime terminoSessaoNova = getTerminoSessaoComDiaDeHoje(sessaoNova);
 		
 		boolean sessaoNovaTerminaAntesDaExistente = terminoSessaoNova.isBefore(inicioSessaoExistente);
 		boolean sessaoNovaComecaDepoisDaExistente = terminoSessaoExistente.isBefore(inicioSessaoNova);
