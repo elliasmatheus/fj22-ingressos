@@ -1,11 +1,11 @@
 package br.com.caelum.ingresso.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -17,13 +17,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.mysql.fabric.Response;
-
 import br.com.caelum.ingresso.dao.FilmeDao;
 import br.com.caelum.ingresso.dao.SalaDao;
 import br.com.caelum.ingresso.dao.SessaoDao;
+import br.com.caelum.ingresso.model.Carrinho;
+import br.com.caelum.ingresso.model.ImagemCapa;
 import br.com.caelum.ingresso.model.Sessao;
+import br.com.caelum.ingresso.model.TipoDeIngresso;
 import br.com.caelum.ingresso.model.form.SessaoForm;
+import br.com.caelum.ingresso.rest.OmdbClient;
 import br.com.caelum.ingresso.validacao.GerenciadorDeSessao;
 
 @Controller
@@ -32,14 +34,20 @@ public class SessaoController {
 	private SalaDao salaDao;
 	private FilmeDao filmeDao;
 	private SessaoDao sessaoDao;
+	private OmdbClient client;
+	private Carrinho carrinho;
 	
 	@Autowired
 	public SessaoController(SalaDao salaDao,
 			FilmeDao filmeDao,
-			SessaoDao sessaoDao) {
+			SessaoDao sessaoDao,
+			OmdbClient client,
+			Carrinho carrinho) {
 		this.filmeDao = filmeDao;
 		this.salaDao = salaDao;
 		this.sessaoDao = sessaoDao;
+		this.client = client;
+		this.carrinho = carrinho;
 	}
 
 	public SalaDao getSalaDao() {
@@ -96,6 +104,21 @@ public class SessaoController {
 	@ResponseBody
 	public void delete(@PathVariable("idSessao") Integer idSessao) {
 		sessaoDao.deletarPorId(idSessao);
+	}
+	
+	@GetMapping("/sessao/{id}/lugares")
+	public ModelAndView lugaresNaSessao(@PathVariable("id") Integer sessaoId) {
+		ModelAndView modelAndView = new ModelAndView("sessao/lugares");
+		
+		Sessao sessao = sessaoDao.findOne(sessaoId);
+		Optional<ImagemCapa> imagemCapa = client.request(sessao.getFilme(), ImagemCapa.class);
+		
+		modelAndView.addObject("sessao", sessao);
+		modelAndView.addObject("imagemCapa", imagemCapa.orElse(new ImagemCapa()));
+		modelAndView.addObject("tiposDeIngressos", TipoDeIngresso.values());
+		modelAndView.addObject("carrinho", carrinho );
+		
+		return modelAndView;
 	}
 		
 }
